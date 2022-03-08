@@ -1,0 +1,72 @@
+---
+title: "Hit Identification After MAGeCK"
+author: "Shan Tang"
+date: "March 8, 2022"
+output: 
+  html_document
+---
+
+## Set up
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Libraries
+library(devtools)
+
+mageck_out<- read.table("https://raw.githubusercontent.com/Shantang3/Combinatorial-CRISPR-Screen-Anaylysis-Pipeline/main/data/Demo_MAGeCK.gene_summary.txt", header = T)
+#lib_file <- read.table("https://raw.githubusercontent.com/Shantang3/Combinatorial-CRISPR-Screen-Anaylysis-Pipeline/main/data/Demo_lib_file.txt", header = T)
+
+mageck_lfc<-mageck_out[,1:8] %>% 
+  mutate(target_A = gsub("^(.*?)__.*", "\\1", id),
+         target_B = sub('.+__(.+)', '\\1',  id)  )
+mageck_lfc<-mageck_lfc[,c("id","target_A","target_B", "neg.lfc", "neg.rank", "neg.score", "neg.p.value",  "neg.fdr", "neg.goodsgrna")]
+```
+
+## median of median LFC of safe-safe constructions
+```{r}
+safe_pattern <- c('.*0Safe.*__0Safe.*') 
+index_safe<-grepl(paste(safe_pattern, collapse="|"), mageck_lfc$id) 
+(safe_lfc<-median(mageck_lfc$neg.lfc[index_safe]) )
+```
+
+## single gene lfc
+calculated as the median LFCs of all pairs compromising specified gene and other safe controls.
+```{r}
+gene_list<-unique(c(mageck_lfc[!index_safe,]$target_A, mageck_lfc[!index_safe,]$target_B))
+safe_pattern <- c('.*0Safe.*')
+index_safe<-grepl(paste(safe_pattern, collapse="|"), gene_list)
+
+gene_list_tar<-gene_list[!index_safe]
+gene_list_safe<-gene_list[index_safe]
+
+single_lfc<-data.frame(matrix(nrow = length(gene_list_tar), ncol = 3))
+colnames(single_lfc)<-c("Gene","lfc","pval")
+single_lfc$Gene<-gene_list_tar
+for (i in 1:length(gene_list_tar)) {
+  tmp<-mageck_lfc %>% 
+    filter(target_B == gene_list_tar [i]) %>% 
+    filter(target_A %in% gene_list_safe)
+  single_lfc$lfc[i]<-median(tmp$neg.lfc-safe_lfc)
+  single_lfc$pval[i]<-t.test(tmp$neg.lfc)[['p.value']]
+}
+
+#write.table(single_lfc, "./Demo_MAGeCK_single_lfc.txt", row.names = F, sep = "\t", quote = F)
+```
+
+
+## GI Calculation
+```{r}
+mageck_GI <- mageck_lfc %>%  #1953
+  mutate(obs_lfc = neg.lfc - safe_lfc) %>%   ##observed LFC
+  filter(target_A %in% gene_list_tar)%>% 
+  filter(target_B %in% gene_list_tar) %>% 
+  filter(target_A != target_B) 
+
+mageck_GI$exp_lfc<-0
+for (i in 1:nrow(mageck_GI)) {
+  mageck_GI$exp_lfc[i]<-sum(single_lfc$lfc[single_lfc$Gene==mageck_GI$target_A[i]], single_lfc$lfc[single_lfc$Gene==mageck_GI$target_B[i]])
+}
+
+mageck_GI$GI <- (mageck_GI$obs_lfc - mageck_GI$exp_lfc) / sd(single_lfc$lfc)
+#write.table(mageck_GI, "./Demo_MAGeCK_GI.txt", row.names = F, sep = "\t", quote = F)
+```
+

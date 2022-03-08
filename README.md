@@ -8,9 +8,12 @@ A detailed demonstration of how to install and run Dual-cripsr can be found at:
 https://github.com/ucsd-ccbb/mali-dual-crispr-pipeline 
 
 ## 2.Quality control:
-Mainly focus on the statistics of sequecing, count distribution and sample correlation, 
+Mainly focus on the statistics of sequecing, count distribution and sample correlation.
 Please refer to QC folder.
 
-## 3. LogFC calculation and hit identification
+## 3. LogFC and Genetic Interaction (GI) calculation 
+The LFC of specified gene-gene pair is calculated by MAGeCK RRA (https://sourceforge.net/p/mageck/wiki/Home/).
+
+The GI value is calulated as the LFC deviation between observed and expected gene-gene pairs divided by the standard deviation of the individual genes’ LFCs.
 
 ## 4. Visulization

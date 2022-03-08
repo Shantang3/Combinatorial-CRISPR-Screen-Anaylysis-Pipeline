@@ -16,4 +16,4 @@ The LFC of specified gene-gene pair is calculated by MAGeCK RRA (https://sourcef
 
 The GI value is calulated as the LFC deviation between observed and expected gene-gene pairs divided by the standard deviation of the individual genes’ LFCs.
 
-## 4. Visulization
+## 4. Visualization

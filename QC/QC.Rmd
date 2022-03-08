@@ -1,0 +1,78 @@
+---
+title: "Quality Control for Combinatorial CRISPR Screen"
+author: "Shan Tang"
+date: "March 8, 2022"
+output: 
+  html_document
+---
+
+## Set up
+The total reads reported by FASTQC is needed as one of the input
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Libraries
+library(devtools)
+library(knitr)
+library(kableExtra)
+
+# IMPORTANT: total reads for individtual samples
+total_reads<-c(231465,229947,318947,382920)
+
+#Other inout
+raw_count <- read.table("https://raw.githubusercontent.com/Shantang3/Combinatorial-CRISPR-Screen-Anaylysis-Pipeline/main/data/Demo_raw_count.txt", header = T)
+```
+
+## Basic sequencing stat
+Check your fastqc before running this.  
+
+Mapping ratio is another key indicator of the quality of your sample and sequencing library. To calculate the mappinp ratio, the total reads from fastqc is needed. Over 80% mapping ratio is ideal.
+
+```{r seq sum}
+## R script from GitHub
+source_url("https://raw.githubusercontent.com/Shantang3/Combinatorial-CRISPR-Screen-Anaylysis-Pipeline/main/R_code/count_sum.R")
+
+countsum<-count_sum(raw_count, total_reads=total_reads, count_threshold = 10)  ## You may change the count_threshold here
+countsum %>%
+  kbl(caption = "Sequencing Stat Summary") %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>% 
+  save_kable("./Seq_Stat.jpeg")
+```
+
+
+## Pairwise sample correlation
+```{r pairwise correlation, warning=F, message=F}
+library(corrplot)
+
+dat_cor <- cor(log2(raw_count[,-1]+1), method = "pearson")
+color <- rev(colorRampPalette(brewer.pal(7, "RdBu"))(100))
+
+jpeg(file = "pairwise sample correleation.jpeg", width = 500, height = 500)
+corrplot(dat_cor, type = "upper", method = "square",  col = color, #mar = c(0,0,2.5,2), 
+         #title = "Pairwise sample correlations",
+         addCoef.col = "black", number.cex = 0.8, tl.col="black")
+dev.off()
+```
+
+
+## Reads distribution
+```{r}
+library(ggplot2)
+source_url("https://raw.githubusercontent.com/Shantang3/Combinatorial-CRISPR-Screen-Anaylysis-Pipeline/main/R_code/gplot_count_dist.R")
+
+count_table <- as.matrix(raw_count[,-1])
+row.names(count_table) = raw_count$construct_id
+
+safe_pattern<-c('.*0Safe.*__0Safe.*')
+safe_ctrl<-grepl(paste(safe_pattern, collapse="|"), raw_count$construct_id)
+
+p1 <- gplot_count_dist(ct=count_table[safe_ctrl,])+
+  labs(x="log10 read count", y="density",title = "Distribution of safe construct (before normalization)")
+
+p2 <- gplot_count_dist(ct=count_table) +
+  labs(x="log10 read count", y="density", title = "Distribution of all construct (before normalization)")
+
+jpeg(file = "Reads distribution.jpeg", width = 500, height = 500)
+grid.arrange(p1, p2, nrow = 2)
+dev.off()
+```
+

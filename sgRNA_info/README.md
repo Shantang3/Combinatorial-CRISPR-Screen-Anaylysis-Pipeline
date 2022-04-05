@@ -4,4 +4,4 @@ This folder contains the sgRNA sequence from:
 3. KinomeKO /Brunello(Doench et al., 2016), 
 4. their VBC (Vienna Bioactivity CRISPR) scores (Michlits et al., 2020).
 
-A R code for integrating these gRNA information is provieded. 
+R code for integrating these gRNA information is provieded. 

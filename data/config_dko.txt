@@ -1,0 +1,41 @@
+[DEFAULT]
+machine_configuration: c4_2xlarge
+libraries_dir: ~/dual_crispr/library_definitions
+notebook_dir: ~/dual_crispr/notebooks
+
+[c4_2xlarge]
+num_processors: 7
+keep_gzs: False
+
+[laptop]
+keep_gzs: True
+num_processors: 3
+
+[count_pipeline]
+full_5p_r1: TTATATATCTTGTGGAAAGGACT
+full_5p_r2: TAACTTGCTATTTCTAGCTCTAAAAC
+full_3p_r1: GTTTAAGAGCTAAGCTGGAAACAGCATAGCAAGTTTAAATAAGGCTAGTCCGTTATCA
+full_3p_r2: AACAAGGCTTTTCTCCAAGGGATATTTATAGTCTCAAAACACACAATTACTTTA
+len_of_seq_to_match: 17
+num_allowed_mismatches: 1
+# Set-up for pipeline notebooks; do not modify unless you are a power user!
+notebook_basenames_list: Dual CRISPR 1-Construct Scaffold Trimming.ipynb,Dual CRISPR 2-Constuct Filter.ipynb,Dual CRISPR 3-Construct Counting.ipynb,Dual CRISPR 4-Count Combination.ipynb,Dual CRISPR 5-Count Plots.ipynb
+
+[score_pipeline]
+time_prefixes: T,D
+# min_count_limit in absolute counts, not log2
+min_count_limit: 10
+# max_fraction_acceptable_spline_density_diff is % of diff between max spline and min density
+max_fraction_acceptable_spline_density_diff: 0.02
+# any threshold throwing out > max_fraction_counts_excluded% of counts is not acceptable
+max_fraction_counts_excluded: 0.95
+use_seed: False
+num_iterations: 1000
+# Set-up for pipeline notebooks; do not modify unless you are a power user!
+notebook_basenames_list: Dual CRISPR 6-Scoring Preparation.ipynb,Dual CRISPR 7-Abundance Thresholds.ipynb,Dual CRISPR 8-Construct Scoring.ipynb
+
+[test]
+use_seed: True
+num_iterations: 2
+
+

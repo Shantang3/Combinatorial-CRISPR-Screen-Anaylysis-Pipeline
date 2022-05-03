@@ -1,5 +1,5 @@
 # Combinatorial CRISPR Screen Anaylysis Pipeline
-This pipeline is desinged for data analysis and visulization for the STAR Protocols of "Fast and Efficient Generation of Paired-gRNA Library Facilitates Combinatorial CRISPR Screen for Discovering Synthetic Lethal Gene Pairs".
+This pipeline is desinged for data analysis and visulization for the STAR Protocols of "Fast and Efficient Generation of Dual-gRNA Library Facilitates Combinatorial CRISPR Screen for Discovering Synthetic Lethal Gene Pairs".
 
 Note that the sampler data set is relatively small, containing only 10 genes (4 gRNAs/gene) and 10 safe-gRNAs, which yields to a dual-gRNA library with 2,500 different gRNA-gRNA constructs. 
 

@@ -18,7 +18,7 @@ count_sum<-function(raw_ct, total_reads, count_threshold, ...){
       `mapped%` = as.numeric(sapply(raw_ct[,-1], sum))/total_reads *100, 
       zero_counts = as.numeric(colSums(raw_ct[,-1]==0)),
       `zero_counts%` = as.numeric(colSums(raw_ct[,-1]==0))/nrow(raw_ct) * 100,
-      Gini_Index = as.numeric(sapply(raw_ct[,-1], Gini)),
+      Gini_Index = as.numeric(sapply(raw_ct[,-1], Gini)/10),
       above_threshold = as.numeric(colSums(raw_ct[,-1]>=count_threshold)),
       `above_threshold%` = as.numeric(colSums(raw_ct[,-1]>=count_threshold)) / nrow(raw_ct) * 100
     )
